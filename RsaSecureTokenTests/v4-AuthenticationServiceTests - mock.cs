@@ -47,21 +47,20 @@ namespace RsaSecureToken.Tests
             IToken token = Substitute.For<IToken>();
             token.GetRandom("Joey").Returns("abc");
 
+            // step 1: arrange, 建立 mock object
             ILog log = Substitute.For<ILog>();
+
             AuthenticationService target = new AuthenticationService(profile, token, log);
             string account = "Joey";
             string password = "wrong password";
 
-            // step 1: arrange, 建立 mock object
-            // ILog log = Substitute.For<ILog>();
-
             // step 2: act
             target.IsValid(account, password);
 
-            log.Received(1).Save("account:Joey try to login failed");
-
             // step 3: assert, mock object 是否有正確互動
-            //log.Received(1).Save("account:Joey try to login failed"); //Received(1) 可以簡化成 Received()
+            //log.Received(1).Save("account:Joey try to login failed");
+            log.Received(1).Save(Arg.Is<string>(x=>x.Contains("Joey") && x.Contains("login failed")));
+
 
             //Assert.Inconclusive();
         }        
