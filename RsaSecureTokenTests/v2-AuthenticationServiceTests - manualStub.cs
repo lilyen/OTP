@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using RsaSecureToken;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
+
 namespace RsaSecureToken.Tests
 {
     [TestClass()]
@@ -19,7 +21,14 @@ namespace RsaSecureToken.Tests
         [TestMethod()]
         public void IsValidTest()
         {
-            var target = new AuthenticationService();
+            var FakeProfile = Substitute.For<IProfile>();
+            FakeProfile.GetPassword("joey").Returns("91");
+
+            var FakeToken = Substitute.For<IToken>();
+            //ReturnsForAnyArgs() 不管是什麼都回傳一樣
+            FakeToken.GetRandom("").ReturnsForAnyArgs("000000");
+
+            var target = new AuthenticationService(FakeProfile, FakeToken);
 
             var actual = target.IsValid("joey", "91000000");
 
