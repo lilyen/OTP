@@ -41,16 +41,29 @@ namespace RsaSecureToken.Tests
         {
             // 試著使用 stub object 的 ReturnsForAnyArgs() 方法
             //例如：profile.GetPassword("").ReturnsForAnyArgs("91"); // 不管GetPassword()傳入任何參數，都要回傳 "91"
+            IProfile profile = Substitute.For<IProfile>();
+            profile.GetPassword("Joey").Returns("91");
+
+            IToken token = Substitute.For<IToken>();
+            token.GetRandom("Joey").Returns("abc");
+
+            ILog log = Substitute.For<ILog>();
+            AuthenticationService target = new AuthenticationService(profile, token, log);
+            string account = "Joey";
+            string password = "wrong password";
 
             // step 1: arrange, 建立 mock object
             // ILog log = Substitute.For<ILog>();
 
             // step 2: act
+            target.IsValid(account, password);
+
+            log.Received(1).Save("account:Joey try to login failed");
 
             // step 3: assert, mock object 是否有正確互動
             //log.Received(1).Save("account:Joey try to login failed"); //Received(1) 可以簡化成 Received()
 
-            Assert.Inconclusive();
+            //Assert.Inconclusive();
         }        
     }
 }
