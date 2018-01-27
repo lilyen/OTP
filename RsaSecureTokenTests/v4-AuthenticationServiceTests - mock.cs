@@ -60,9 +60,30 @@ namespace RsaSecureToken.Tests
             // step 3: assert, mock object 是否有正確互動
             //log.Received(1).Save("account:Joey try to login failed");
             log.Received(1).Save(Arg.Is<string>(x=>x.Contains("Joey") && x.Contains("login failed")));
+        }
 
+        [TestMethod]
+        public void IsValidTest_驗證當合法登入時沒有紀錄log()
+        {
+            // 試著使用 stub object 的 ReturnsForAnyArgs() 方法
+            //例如：profile.GetPassword("").ReturnsForAnyArgs("91"); // 不管GetPassword()傳入任何參數，都要回傳 "91"
+            IProfile profile = Substitute.For<IProfile>();
+            profile.GetPassword("Joey").Returns("91");
 
-            //Assert.Inconclusive();
-        }        
+            IToken token = Substitute.For<IToken>();
+            token.GetRandom("Joey").Returns("abc");
+
+            // step 1: arrange, 建立 mock object
+            ILog log = Substitute.For<ILog>();
+
+            AuthenticationService target = new AuthenticationService(profile, token, log);
+            string account = "Joey";
+            string password = "91";
+
+            // step 2: act
+            target.IsValid(account, password);
+
+            log.DidNotReceiveWithAnyArgs();
+        }
     }
 }
